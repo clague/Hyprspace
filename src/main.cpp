@@ -1,3 +1,4 @@
+#include <hyprland/src/devices/ITouch.hpp>
 #include <hyprland/src/plugins/PluginSystem.hpp>
 #include <hyprland/src/plugins/PluginAPI.hpp>
 #include <hyprland/src/devices/IKeyboard.hpp>
@@ -263,17 +264,19 @@ void onKeyPress(void* thisptr, SCallbackInfo& info, std::any args) {
 }
 
 void onTouchDown(void* thisptr, SCallbackInfo& info, std::any args) {
-    const auto e = std::any_cast<wlr_touch_down_event*>(args);
-    const auto targetMonitor = g_pCompositor->getMonitorFromName(e->touch->output_name ? e->touch->output_name : "");
+    const auto e = std::any_cast<ITouch::SDownEvent*>(args);
+    const auto targetMonitor = g_pCompositor->getMonitorFromVector(e->pos);
     const auto widget = getWidgetForMonitor(targetMonitor);
     if (widget != nullptr && targetMonitor != nullptr)
         if (widget->isActive())
-            info.cancelled = !widget->buttonEvent(true, { targetMonitor->vecPosition.x + e->x * targetMonitor->vecSize.x, targetMonitor->vecPosition.y + e->y * targetMonitor->vecSize.y });
+            info.cancelled =
+              !widget->buttonEvent(true,
+                                   { targetMonitor->vecPosition.x + e->pos.x * targetMonitor->vecSize.x,
+                                     targetMonitor->vecPosition.y + e->pos.y * targetMonitor->vecSize.y });
 }
 
 void onTouchUp(void* thisptr, SCallbackInfo& info, std::any args) {
-    const auto e = std::any_cast<wlr_touch_up_event*>(args);
-    const auto targetMonitor = g_pCompositor->getMonitorFromName(e->touch->output_name ? e->touch->output_name : "");
+    const auto targetMonitor = g_pCompositor->getMonitorFromCursor();
     const auto widget = getWidgetForMonitor(targetMonitor);
     if (widget != nullptr && targetMonitor != nullptr)
         if (widget->isActive())
