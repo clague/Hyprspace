@@ -1,6 +1,7 @@
 {
     "version": "0.2",
     "configurations": [
+        
         {
             "name": "Debug (nested session)",
             "type": "cppdbg",

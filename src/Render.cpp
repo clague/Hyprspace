@@ -5,7 +5,7 @@ void renderWindowStub(PHLWINDOW pWindow, CMonitor* pMonitor, PHLWORKSPACE pWorks
     if (!pWindow || !pMonitor || !pWorkspaceOverride || !time) return;
 
     const auto oWorkspace = pWindow->m_pWorkspace;
-    const auto oFullscreen = pWindow->m_bIsFullscreen;
+    const auto oFullscreen = pWindow->m_sFullscreenState;
     const auto oRealPosition = pWindow->m_vRealPosition.value();
     const auto oSize = pWindow->m_vRealSize.value();
     const auto oUseNearestNeighbor = pWindow->m_sWindowData.nearestNeighbor;
@@ -24,7 +24,7 @@ void renderWindowStub(PHLWINDOW pWindow, CMonitor* pMonitor, PHLWORKSPACE pWorks
     g_pHyprOpenGL->m_RenderData.renderModif.modifs.push_back({SRenderModifData::eRenderModifType::RMOD_TYPE_SCALE, curScaling});
     g_pHyprOpenGL->m_RenderData.renderModif.enabled = true;
     pWindow->m_pWorkspace = pWorkspaceOverride;
-    pWindow->m_bIsFullscreen = false; // FIXME: no windows should be in fullscreen when overview is open, reject all fullscreen requests when active
+    pWindow->m_sFullscreenState = {.internal = FSMODE_NONE, .client = FSMODE_NONE}; // FIXME: no windows should be in fullscreen when overview is open, reject all fullscreen requests when active
     pWindow->m_sWindowData.nearestNeighbor = false; // FIX: this wont do, need to scale surface texture down properly so that windows arent shown as pixelated mess
     pWindow->m_bIsFloating = false; // weird shit happened so hack fix
     pWindow->m_bPinned = true;
@@ -38,7 +38,7 @@ void renderWindowStub(PHLWINDOW pWindow, CMonitor* pMonitor, PHLWORKSPACE pWorks
 
     // restore values for normal window render
     pWindow->m_pWorkspace = oWorkspace;
-    pWindow->m_bIsFullscreen = oFullscreen;
+    pWindow->m_sFullscreenState = oFullscreen;
     pWindow->m_sWindowData.nearestNeighbor = oUseNearestNeighbor;
     pWindow->m_bIsFloating = oFloating;
     pWindow->m_bPinned = oPinned;
